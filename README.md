@@ -12,7 +12,7 @@ Repackages the official `x86_64.AppImage` from [`pingdotgg/t3code` GitHub Releas
 
 ### 2. Add Repository to Your System
 ```bash
-flatpak remote-add t3code https://YOUR_USERNAME.github.io/t3code-flatpak/index.flatpakrepo
+flatpak remote-add t3code https://julianrottenberg.github.io/t3code-flatpak/index.flatpakrepo
 flatpak install t3code codes.t3.T3Code
 ```
 
