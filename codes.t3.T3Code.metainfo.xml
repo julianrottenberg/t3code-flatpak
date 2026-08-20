@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>codes.t3.T3Code</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>T3 Code</name>
+  <summary>Desktop control surface for local coding agents</summary>
+  <description>
+    <p>T3 Code is a desktop control surface for local coding agents — plan, review and run agentic coding workflows from a native window.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Agent workspace with worktree / subagent orchestration</li>
+      <li>Built-in browser / preview, terminal and editor integrations</li>
+      <li>Electron desktop build distributed as AppImage upstream</li>
+    </ul>
+    <p>This Flatpak repackages the official x86_64 AppImage from GitHub Releases and runs it sandboxed via Flatpak (no fuse2/SUID on the host — secureblue-compliant).</p>
+  </description>
+  <launchable type="desktop-id">codes.t3.T3Code.desktop</launchable>
+  <url type="homepage">https://t3.codes</url>
+  <url type="bugtracker">https://github.com/pingdotgg/t3code/issues</url>
+  <url type="help">https://github.com/pingdotgg/t3code</url>
+  <developer_name>T3</developer_name>
+  <releases>
+    <release version="0.0.33" date="2026-08-10"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

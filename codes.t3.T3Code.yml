@@ -1,0 +1,73 @@
+app-id: codes.t3.T3Code
+base: org.electronjs.Electron2.BaseApp
+base-version: '25.08'
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: run.sh
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --share=network
+  - --device=dri
+  - --talk-name=org.freedesktop.Notifications
+  - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
+  - --filesystem=home
+  - --filesystem=xdg-config/t3code:create
+modules:
+  - name: t3code
+    buildsystem: simple
+    build-commands:
+      - chmod +x T3-Code.AppImage
+      # AppImage runtime --appimage-extract truncates this AppImage on some hosts (secureblue/Freedesktop SDK) — fall back to 7z.
+      - |
+        if ! ./T3-Code.AppImage --appimage-extract 2>&1 | head -n 20; then
+          echo "--appimage-extract failed, trying 7z..."
+        fi
+        if [ ! -f squashfs-root/t3code ] && [ -f t3code ]; then
+          echo "Normalizing 7z layout -> squashfs-root..."
+          mkdir -p squashfs-root
+          for f in AppRun t3code t3code.desktop t3code.png chrome* lib* *.pak *.bin *.json .DirIcon resources locales usr; do
+            [ -e "$f" ] && mv "$f" squashfs-root/ 2>/dev/null || true
+          done
+        fi
+        ls -lh squashfs-root/t3code 2>&1 | head -n 5
+        test -f squashfs-root/t3code
+      - rm -f T3-Code.AppImage
+      - desktop-file-edit --set-icon codes.t3.T3Code --set-key Exec --set-value 'run.sh %U' squashfs-root/t3code.desktop
+      - install -D run.sh -t /app/bin
+      - install -Dm644 codes.t3.T3Code.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 squashfs-root/t3code.desktop -t /app/share/applications/codes.t3.T3Code.desktop
+      - install -Dm644 codes.t3.T3Code.png -t /app/share/icons/hicolor/512x512/apps/codes.t3.T3Code.png
+      - mv squashfs-root /app/t3code
+      # Install icons for all sizes for proper HiDPI lookup
+      - |
+        for size in 16 22 24 32 48 64 128 256 512; do
+          if [ -f "/app/t3code/usr/share/icons/hicolor/${size}x${size}/apps/t3code.png" ]; then
+            install -Dm644 "/app/t3code/usr/share/icons/hicolor/${size}x${size}/apps/t3code.png" \
+              "/app/share/icons/hicolor/${size}x${size}/apps/codes.t3.T3Code.png"
+          fi
+        done
+    sources:
+      - type: file
+        url: https://github.com/pingdotgg/t3code/releases/download/v0.0.33/T3-Code-0.0.33-x86_64.AppImage
+        sha256: 415c8648f43c3d22d572f27f2c50fdc8c310ea7fcde9537b903e1e2f1c8775a1
+        dest-filename: T3-Code.AppImage
+        only-arches:
+          - x86_64
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/pingdotgg/t3code/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: .assets[] | select(.name=="T3-Code-" + $version + "-x86_64.AppImage") | .browser_download_url
+      - type: file
+        path: codes.t3.T3Code.metainfo.xml
+      - type: file
+        path: codes.t3.T3Code.png
+      - type: script
+        dest-filename: run.sh
+        commands:
+          - zypak-wrapper.sh /app/t3code/t3code "$@"
