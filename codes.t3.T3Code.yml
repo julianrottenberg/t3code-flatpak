@@ -14,6 +14,7 @@ finish-args:
   - --share=network
   - --device=dri
   - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.Flatpak
   - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
   - --filesystem=home
   - --filesystem=xdg-config/t3code:create
@@ -60,6 +61,22 @@ modules:
               "/app/share/icons/hicolor/${size}x${size}/apps/codes.t3.T3Code.png"
           fi
         done
+      - |
+        # Host wrappers - expose host git/gh via flatpak-spawn (requires --talk-name=org.freedesktop.Flatpak)
+        install -Dm755 /dev/stdin /app/bin/git <<'EOS'
+        #!/bin/sh
+        exec flatpak-spawn --host git "$@"
+        EOS
+        install -Dm755 /dev/stdin /app/bin/gh <<'EOS'
+        #!/bin/sh
+        # gh is at /home/linuxbrew/.linuxbrew/bin/gh on this host - home is mounted, but spawn needs full path
+        if [ -x /home/linuxbrew/.linuxbrew/bin/gh ]; then
+          # try direct mount first (no spawn overhead)
+          exec /home/linuxbrew/.linuxbrew/bin/gh "$@"
+        fi
+        exec flatpak-spawn --host /home/linuxbrew/.linuxbrew/bin/gh "$@"
+        EOS
+        chmod +x /app/bin/git /app/bin/gh
     sources:
       - type: file
         url: https://github.com/pingdotgg/t3code/releases/download/v0.0.33/T3-Code-0.0.33-x86_64.AppImage
