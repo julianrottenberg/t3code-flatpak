@@ -69,11 +69,6 @@ modules:
         EOS
         install -Dm755 /dev/stdin /app/bin/gh <<'EOS'
         #!/bin/sh
-        # gh is at /home/linuxbrew/.linuxbrew/bin/gh on this host - home is mounted, but spawn needs full path
-        if [ -x /home/linuxbrew/.linuxbrew/bin/gh ]; then
-          # try direct mount first (no spawn overhead)
-          exec /home/linuxbrew/.linuxbrew/bin/gh "$@"
-        fi
         exec flatpak-spawn --host /home/linuxbrew/.linuxbrew/bin/gh "$@"
         EOS
         chmod +x /app/bin/git /app/bin/gh
