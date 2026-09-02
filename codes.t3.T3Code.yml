@@ -17,7 +17,9 @@ finish-args:
   - --talk-name=org.freedesktop.Flatpak
   - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
   - --filesystem=home
+  - --filesystem=/home/linuxbrew:ro
   - --filesystem=xdg-config/t3code:create
+  - --env=PATH=/app/bin:/usr/bin:/home/julian/.npm-global/bin:/home/linuxbrew/.linuxbrew/bin
 modules:
   - name: t3code
     buildsystem: simple
@@ -71,7 +73,11 @@ modules:
         #!/bin/sh
         exec flatpak-spawn --host /home/linuxbrew/.linuxbrew/bin/gh "$@"
         EOS
-        chmod +x /app/bin/git /app/bin/gh
+        install -Dm755 /dev/stdin /app/bin/opencode <<'EOS'
+        #!/bin/sh
+        exec flatpak-spawn --host /home/julian/.npm-global/bin/opencode "$@"
+        EOS
+        chmod +x /app/bin/git /app/bin/gh /app/bin/opencode
     sources:
       - type: file
         url: https://github.com/pingdotgg/t3code/releases/download/v0.0.33/T3-Code-0.0.33-x86_64.AppImage
