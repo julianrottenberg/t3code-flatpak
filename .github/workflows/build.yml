@@ -29,7 +29,7 @@ jobs:
       - name: Push changes
         if: github.event_name != 'pull_request'
         run: |
-          git push || echo "No changes to push"
+          git push origin HEAD:${{ github.ref_name }} || echo "No changes to push"
 
   build:
     name: Build Flatpak
