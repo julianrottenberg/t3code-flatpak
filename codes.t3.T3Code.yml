@@ -49,7 +49,8 @@ modules:
         ls -lh squashfs-root/t3code 2>&1 | head -n 5
         test -f squashfs-root/t3code
       - rm -f T3-Code.AppImage
-      - desktop-file-edit --set-icon codes.t3.T3Code --set-key Exec --set-value 'run.sh %U' squashfs-root/t3code.desktop
+      - desktop-file-edit --set-icon codes.t3.T3Code --set-key Exec --set-value 'run.sh
+        %U' squashfs-root/t3code.desktop
       - install -D run.sh -t /app/bin
       - install -Dm644 codes.t3.T3Code.metainfo.xml -t /app/share/metainfo
       - install -Dm644 squashfs-root/t3code.desktop /app/share/applications/codes.t3.T3Code.desktop
@@ -80,8 +81,8 @@ modules:
         chmod +x /app/bin/git /app/bin/gh /app/bin/opencode
     sources:
       - type: file
-        url: https://github.com/pingdotgg/t3code/releases/download/v0.0.33/T3-Code-0.0.33-x86_64.AppImage
-        sha256: 415c8648f43c3d22d572f27f2c50fdc8c310ea7fcde9537b903e1e2f1c8775a1
+        url: https://github.com/pingdotgg/t3code/releases/download/v0.0.42/T3-Code-0.0.42-x86_64.AppImage
+        sha256: 8dc1fccdabc2ed3a59a3944cc772ef11931b9351401c0963ed305d5f96e3cdf4
         dest-filename: T3-Code.AppImage
         only-arches:
           - x86_64
@@ -89,7 +90,8 @@ modules:
           type: json
           url: https://api.github.com/repos/pingdotgg/t3code/releases/latest
           version-query: .tag_name | sub("^v"; "")
-          url-query: .assets[] | select(.name=="T3-Code-" + $version + "-x86_64.AppImage") | .browser_download_url
+          url-query: .assets[] | select(.name=="T3-Code-" + $version + "-x86_64.AppImage")
+            | .browser_download_url
       - type: file
         path: codes.t3.T3Code.metainfo.xml
       - type: file
