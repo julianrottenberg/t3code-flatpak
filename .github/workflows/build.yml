@@ -1,11 +1,13 @@
 name: Build and Publish Flatpak
 
-on:
-  schedule:
+on:  schedule:
     - cron: '0 2 * * *'  # Daily at 2 AM UTC
   workflow_dispatch:
   push:
     branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   update:
