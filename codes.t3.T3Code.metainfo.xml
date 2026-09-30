@@ -21,8 +21,11 @@
   <url type="help">https://github.com/pingdotgg/t3code</url>
   <developer_name>T3</developer_name>
   <releases>
-    <release version="0.0.42" date="2026-09-16">
+    <release version="0.0.44" date="2026-09-29">
       <description></description>
+    </release>
+    <release version="0.0.42" date="2026-09-16">
+      <description/>
     </release>
     <release version="0.0.33" date="2026-08-10"/>
   </releases>
