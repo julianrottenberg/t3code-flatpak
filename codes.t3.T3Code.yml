@@ -82,8 +82,8 @@ modules:
         chmod +x /app/bin/git /app/bin/gh /app/bin/opencode
     sources:
       - type: file
-        url: https://github.com/pingdotgg/t3code/releases/download/v0.0.45/T3-Code-0.0.45-x86_64.AppImage
-        sha256: ab7b0a86d1ea657ccc162b60b772c61f70bc7c8b9e259b46939d53bb38faa02a
+        url: https://github.com/pingdotgg/t3code/releases/download/v0.1.0/T3-Code-0.1.0-x86_64.AppImage
+        sha256: e38d9c5fb513b1ece0a708b906d3383b5b47ed199575b39a31e41ab8834eb744
         dest-filename: T3-Code.AppImage
         only-arches:
           - x86_64
