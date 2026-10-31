@@ -2,7 +2,10 @@ name: Build and Publish Flatpak
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+    # Poll upstream for a new stable release. GitHub's `releases/latest`
+    # endpoint never returns pre-releases or drafts, so nightly/preview
+    # builds can't trigger this workflow.
+    - cron: '*/15 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -10,10 +13,75 @@ on:
 permissions:
   contents: write
 
+# One build at a time; never cancel a run mid-publish.
+concurrency:
+  group: t3code-flatpak-build
+  cancel-in-progress: false
+
 jobs:
-  update:
-    name: Check for Updates
+  check:
+    name: Check for New Stable Release
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+      latest: ${{ steps.compare.outputs.latest }}
+      pinned: ${{ steps.compare.outputs.pinned }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compare upstream stable release with manifest pin
+        id: compare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          latest=$(gh api repos/pingdotgg/t3code/releases/latest --jq '.tag_name' 2>/dev/null | sed 's/^v//' || true)
+          pinned=$(grep -oE 'T3-Code-[0-9]+\.[0-9]+\.[0-9]+-x86_64\.AppImage' codes.t3.T3Code.yml \
+            | head -n1 | sed -E 's/^T3-Code-([0-9.]+)-x86_64\.AppImage$/\1/' || true)
+
+          echo "Upstream latest stable: ${latest:-<unknown>}"
+          echo "Manifest pinned:        ${pinned:-<unknown>}"
+
+          changed=false
+          if [ "$EVENT" != "schedule" ]; then
+            # Push or manual dispatch: rebuild even when the pin is current.
+            changed=true
+          elif [ -z "$latest" ]; then
+            echo "::warning::Could not read upstream releases/latest — skipping this poll."
+          elif [ "$latest" != "$pinned" ]; then
+            echo "::notice::New stable release $latest (pinned: ${pinned:-none}) — rebuilding."
+            changed=true
+          else
+            echo "Already on the latest stable release — nothing to do."
+          fi
+
+          {
+            echo "changed=$changed"
+            echo "latest=$latest"
+            echo "pinned=$pinned"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          {
+            echo "### T3 Code stable check"
+            echo ""
+            echo "| | Version |"
+            echo "|---|---|"
+            echo "| Upstream stable | \`${{ steps.compare.outputs.latest || 'unknown' }}\` |"
+            echo "| Manifest pin | \`${{ steps.compare.outputs.pinned || 'unknown' }}\` |"
+            echo "| Rebuild | \`${{ steps.compare.outputs.changed }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  update:
+    name: Update Manifest
+    runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.changed == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +105,7 @@ jobs:
   build:
     name: Build Flatpak
     runs-on: ubuntu-latest
-    needs: update
+    needs: [check, update]
     container:
       image: ghcr.io/andyholmes/flatter/freedesktop:25.08
       options: --privileged
