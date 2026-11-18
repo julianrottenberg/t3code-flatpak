@@ -82,8 +82,11 @@ modules:
         chmod +x /app/bin/git /app/bin/gh /app/bin/opencode
     sources:
       - type: file
-        url: https://github.com/pingdotgg/t3code/releases/download/v0.1.9/T3-Code-0.1.9-x86_64.AppImage
-        sha256: d0ab56df3e338f242848435621297fd963a33715b0d8208dbf08399659572d81
+        # Upstream dropped the version from the AppImage asset name in 0.1.10
+        # (was T3-Code-<version>-x86_64.AppImage, now T3-Code-x86_64.AppImage).
+        # url-query tries the versioned name first, then the unversioned one.
+        url: https://github.com/pingdotgg/t3code/releases/download/v0.1.10/T3-Code-x86_64.AppImage
+        sha256: 7cded13c10757153901edddac9a2608b156f17445de506ef9ffdf73c01528d79
         dest-filename: T3-Code.AppImage
         only-arches:
           - x86_64
@@ -91,8 +94,9 @@ modules:
           type: json
           url: https://api.github.com/repos/pingdotgg/t3code/releases/latest
           version-query: .tag_name | sub("^v"; "")
-          url-query: .assets[] | select(.name=="T3-Code-" + $version + "-x86_64.AppImage")
-            | .browser_download_url
+          url-query: >-
+            (.assets[] | select(.name == ("T3-Code-" + $version + "-x86_64.AppImage")) | .browser_download_url)
+            // (.assets[] | select(.name == "T3-Code-x86_64.AppImage") | .browser_download_url)
       - type: file
         path: codes.t3.T3Code.metainfo.xml
       - type: file

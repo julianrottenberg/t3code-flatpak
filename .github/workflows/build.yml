@@ -40,8 +40,11 @@ jobs:
           set -euo pipefail
 
           latest=$(gh api repos/pingdotgg/t3code/releases/latest --jq '.tag_name' 2>/dev/null | sed 's/^v//' || true)
-          pinned=$(grep -oE 'T3-Code-[0-9]+\.[0-9]+\.[0-9]+-x86_64\.AppImage' codes.t3.T3Code.yml \
-            | head -n1 | sed -E 's/^T3-Code-([0-9.]+)-x86_64\.AppImage$/\1/' || true)
+          # Read the pin from the source URL tag (releases/download/vX.Y.Z/...).
+          # The asset filename no longer carries the version: upstream renamed
+          # T3-Code-<version>-x86_64.AppImage to T3-Code-x86_64.AppImage in 0.1.10.
+          pinned=$(grep -oE 'releases/download/v[0-9]+\.[0-9]+\.[0-9]+/' codes.t3.T3Code.yml \
+            | head -n1 | sed -E 's|^releases/download/v||; s|/$||' || true)
 
           echo "Upstream latest stable: ${latest:-<unknown>}"
           echo "Manifest pinned:        ${pinned:-<unknown>}"
