@@ -85,8 +85,8 @@ modules:
         # Upstream dropped the version from the AppImage asset name in 0.1.10
         # (was T3-Code-<version>-x86_64.AppImage, now T3-Code-x86_64.AppImage).
         # url-query tries the versioned name first, then the unversioned one.
-        url: https://github.com/pingdotgg/t3code/releases/download/v0.1.12/T3-Code-x86_64.AppImage
-        sha256: 66b91551571df6d29b55cb590295edf411cff96c95a8feb3f41c3ca595d722e2
+        url: https://github.com/pingdotgg/t3code/releases/download/v0.1.13/T3-Code-x86_64.AppImage
+        sha256: dac1bbe9e93c1a5fb0942332befa998597f6a086232a87766ef5d8235a44f56d
         dest-filename: T3-Code.AppImage
         only-arches:
           - x86_64
